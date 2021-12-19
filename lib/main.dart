@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import './input_page.dart';
 import './mytodos.dart';
 import './success.dart';
+
 import 'package:firebase_core/firebase_core.dart';
 
 
@@ -27,7 +28,7 @@ class MustApp extends StatelessWidget {
         primaryColor: Colors.yellow,
         scaffoldBackgroundColor: const Color.fromRGBO(231, 220, 217, 1.0),
       ),
-          home: const MyTodosPage(),
+          home: InputPage(),
     );
   }
 }
