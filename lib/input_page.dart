@@ -22,8 +22,9 @@ class _InputPageState extends State<InputPage>{
     
   @override
   Widget build(BuildContext context) {
+    //CollectionReference todosRef= _fs.collection('todos');
+    //CollectionReference todosRef= _fs.collection('testCollection');
     CollectionReference todosRef= _fs.collection('todos');
-
 
 
 
@@ -123,6 +124,8 @@ class _InputPageState extends State<InputPage>{
                         'deadline': DateTime.now().add(Duration(days:_destinationDay.toInt())),
                         };
                         await todosRef.doc(uuid.v4()).set(toDoData);
+
+                        todosRef.add({'test':55});
                         Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(builder:(context)=> SuccessPage()));

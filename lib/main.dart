@@ -27,7 +27,7 @@ class MustApp extends StatelessWidget {
         primaryColor: Colors.yellow,
         scaffoldBackgroundColor: const Color.fromRGBO(231, 220, 217, 1.0),
       ),
-          home: const SuccessPage(),
+          home: const MyTodosPage(),
     );
   }
 }
