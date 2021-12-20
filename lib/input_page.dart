@@ -124,8 +124,7 @@ class _InputPageState extends State<InputPage>{
                         'deadline': DateTime.now().add(Duration(days:_destinationDay.toInt())),
                         };
                         await todosRef.doc(uuid.v4()).set(toDoData);
-
-                        todosRef.add({'test':55});
+                        
                         Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(builder:(context)=> SuccessPage()));
