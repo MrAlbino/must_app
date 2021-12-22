@@ -36,7 +36,7 @@ class _MyTodosPageState extends State<MyTodosPage>{
                 builder: (BuildContext context, AsyncSnapshot asyncSnapshot) {
                   if (asyncSnapshot.hasError) {
                     return const Center(
-                        child: Text('Bir Hata Oluştu, Tekrar Deneynizi'));
+                        child: Text('Bir Hata Oluştu, Tekrar Deneyiniz'));
                   } else {
                     if (asyncSnapshot.hasData) {
                       List<DocumentSnapshot> listOfDocumentSnap =

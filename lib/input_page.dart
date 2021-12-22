@@ -3,7 +3,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 import './success.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 var uuid = const Uuid();
+final FirebaseAuth _auth = FirebaseAuth.instance;
+final User? user =_auth.currentUser;
+final userId = user!.uid;
 
 class InputPage extends StatefulWidget{
   const InputPage({Key? key}) : super(key: key);
@@ -25,8 +29,7 @@ class _InputPageState extends State<InputPage>{
     //CollectionReference todosRef= _fs.collection('todos');
     //CollectionReference todosRef= _fs.collection('testCollection');
     CollectionReference todosRef= _fs.collection('todos');
-
-
+    CollectionReference usersRef= _fs.collection('Users');
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -123,9 +126,10 @@ class _InputPageState extends State<InputPage>{
                         'explanation': explanationController.text,
                         'deadline': DateTime.now().add(Duration(days:_destinationDay.toInt())),
                         };
-                        await todosRef.doc(uuid.v4()).set(toDoData);
+                        var id=uuid.v4();
+                        await todosRef.doc((id)).set(toDoData);
 
-                        todosRef.add({'test':55});
+                        await usersRef.doc(userId).update({'todo_list':FieldValue.arrayUnion([id])});
                         Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(builder:(context)=> SuccessPage()));
