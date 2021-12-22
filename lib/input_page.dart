@@ -3,7 +3,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 import './success.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 var uuid = const Uuid();
+final FirebaseAuth _auth = FirebaseAuth.instance;
+final User? user =_auth.currentUser;
+final userId = user!.uid;
 
 class InputPage extends StatefulWidget{
   const InputPage({Key? key}) : super(key: key);
@@ -19,14 +23,13 @@ class _InputPageState extends State<InputPage>{
   TextEditingController nameController = TextEditingController();
   TextEditingController explanationController = TextEditingController();
   TextEditingController destinationDayController = TextEditingController();
-    
+
   @override
   Widget build(BuildContext context) {
     //CollectionReference todosRef= _fs.collection('todos');
     //CollectionReference todosRef= _fs.collection('testCollection');
     CollectionReference todosRef= _fs.collection('todos');
-
-
+    CollectionReference usersRef= _fs.collection('Users');
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -38,7 +41,7 @@ class _InputPageState extends State<InputPage>{
         ),
         centerTitle: true,
       ),
-      body: 
+      body:
       Form(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -64,12 +67,12 @@ class _InputPageState extends State<InputPage>{
               )
               ),
             ),
-             Expanded(
-               flex: 2,
+            Expanded(
+              flex: 2,
               child: MyContainer(child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children:  [
-                   const Text("Hedef Açıklaması",style:TextStyle(
+                  const Text("Hedef Açıklaması",style:TextStyle(
                       color:Colors.black54,fontSize: 20,fontWeight: FontWeight.bold
                   ),
                   ),
@@ -83,16 +86,16 @@ class _InputPageState extends State<InputPage>{
               )
               ),
             ),
-             Expanded(
-               flex: 2,
+            Expanded(
+              flex: 2,
               child: MyContainer(child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text("Hedef Gün",style:TextStyle(
-                    color:Colors.black54,fontSize: 20,fontWeight: FontWeight.bold
+                      color:Colors.black54,fontSize: 20,fontWeight: FontWeight.bold
                   ),
                   ),
-                   Text(_destinationDay.round().toString(), style: const TextStyle(
+                  Text(_destinationDay.round().toString(), style: const TextStyle(
                       color:Colors.lightBlue,fontSize: 25,fontWeight: FontWeight.bold
                   ),
                   ),
@@ -112,27 +115,29 @@ class _InputPageState extends State<InputPage>{
               )
               ),
             ),
-            
+
             Expanded(
               flex: 1,
 
-                  child: TextButton(
-                      onPressed: () async{
-                        Map<String, dynamic> toDoData = {
-                        'name': nameController.text,
-                        'explanation': explanationController.text,
-                        'deadline': DateTime.now().add(Duration(days:_destinationDay.toInt())),
-                        };
-                        await todosRef.doc(uuid.v4()).set(toDoData);
-                        
-                        Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder:(context)=> SuccessPage()));
-                      },
-                      child: const Text('Oluştur'),
-                      style: ButtonStyle(elevation: MaterialStateProperty.all(2), shape: MaterialStateProperty.all(const CircleBorder()), backgroundColor: MaterialStateProperty.all(Colors.orange), foregroundColor: MaterialStateProperty.all(Colors.white),
-                  ),
-                  ),
+              child: TextButton(
+                onPressed: () async{
+                  Map<String, dynamic> toDoData = {
+                    'name': nameController.text,
+                    'explanation': explanationController.text,
+                    'deadline': DateTime.now().add(Duration(days:_destinationDay.toInt())),
+                  };
+                  var id=uuid.v4();
+                  await todosRef.doc((id)).set(toDoData);
+
+                  await usersRef.doc(userId).update({'todo_list':FieldValue.arrayUnion([id])});
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder:(context)=> SuccessPage()));
+                },
+                child: const Text('Oluştur'),
+                style: ButtonStyle(elevation: MaterialStateProperty.all(2), shape: MaterialStateProperty.all(const CircleBorder()), backgroundColor: MaterialStateProperty.all(Colors.orange), foregroundColor: MaterialStateProperty.all(Colors.white),
+                ),
+              ),
 
             ),
           ],
