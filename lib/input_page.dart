@@ -131,7 +131,8 @@ class _InputPageState extends State<InputPage>{
                       'name': nameController.text,
                       'explanation': explanationController.text,
                       'deadline': DateTime.now().add(Duration(days:_destinationDay.toInt())),
-                      'user' : userId
+                      'user' : userId,
+                      'done':false
                     };
                     var id=uuid.v4();
                     await todosRef.doc((id)).set(toDoData);

@@ -3,8 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 final FirebaseAuth _auth = FirebaseAuth.instance;
-final User? user =_auth.currentUser;
-final userId = user!.uid;
+
 
 class MyTodosPage extends StatefulWidget{
   const MyTodosPage({Key? key}) : super(key: key);
@@ -17,39 +16,25 @@ class MyTodosPage extends StatefulWidget{
 class _MyTodosPageState extends State<MyTodosPage>{
   final _fs=  FirebaseFirestore.instance;
 
+  Color getMyColor(DateTime date, bool done) {
+    if (done) {
+      return Colors.green;
+    } else if(DateTime.now().isBefore(date)){
+      return Colors.orange.shade200;
+    }
+    else{
+      return Colors.red.shade500;
+    }
+
+  }
 
 
   @override
   Widget build(BuildContext context) {
     CollectionReference todosRef= _fs.collection('todos');
     CollectionReference _usersRef= _fs.collection('Users');
-    //var _usersRef =_fs.collection('DriverList');
-   //var userSnapshot = _usersRef.get();
-   // var userData =_fs.collection('Users').doc(userId);
-
-
-   // Future<String> getTodos(String _userId) async {
-   //  DocumentReference documentReference = _usersRef.doc(_userId);
-    //  String value='';
-    //  documentReference.get().then((snapshot) {
-    //    value=(snapshot['todo_list'].toString());
-
-    //  });
-    //  return value;
-   // }
-
-    //var user_todos=getTodos(userId);
-
-    DocumentReference documentReference = _usersRef.doc(userId);
-
-
-
-
-
-
-
-
-
+    final User? user =_auth.currentUser;
+    final userId = user!.uid;
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -81,7 +66,8 @@ class _MyTodosPageState extends State<MyTodosPage>{
                           itemCount: listOfDocumentSnap.length,
                           itemBuilder: (context, index) {
                             return Card(
-                              color: (DateTime.now().isBefore(DateTime.parse((listOfDocumentSnap[index]['deadline']).toDate().toString())) ? Colors.yellow:Colors.red) ,
+                              color:getMyColor(DateTime.parse((listOfDocumentSnap[index]['deadline']).toDate().toString()),listOfDocumentSnap[index]['done']) ,
+
                               child: ListTile(
                                 title: Text(
                                     '${listOfDocumentSnap[index]['name']}',
@@ -89,15 +75,41 @@ class _MyTodosPageState extends State<MyTodosPage>{
                                 subtitle: Text(
                                     '${DateTime.parse((listOfDocumentSnap[index]['deadline']).toDate().toString())}',
                                     style: const TextStyle(fontSize: 16)),
-                                trailing: IconButton(
-                                  icon: const Icon(Icons.delete),
-                                  onPressed: () async {
-                                    var todoId= listOfDocumentSnap[index].id;
-                                    await listOfDocumentSnap[index]
-                                        .reference
-                                        .delete();
-                                    _usersRef.doc(userId).update({'todo_list':FieldValue.arrayRemove([todoId])});
-                                  },
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [  if(listOfDocumentSnap[index]['done'])...[
+                                    IconButton(
+                                      icon: const Icon(Icons.delete),
+                                      onPressed: () async {
+                                        var todoId= listOfDocumentSnap[index].id;
+                                        await listOfDocumentSnap[index]
+                                            .reference
+                                            .delete();
+                                        _usersRef.doc(userId).update({'todo_list':FieldValue.arrayRemove([todoId])});
+                                      },
+                                    ),
+                                  ]
+                                    else if(DateTime.now().isBefore(DateTime.parse((listOfDocumentSnap[index]['deadline']).toDate().toString())))...[
+                                      IconButton(
+                                        icon: const Icon(Icons.assignment_turned_in),
+                                        onPressed: () async {
+                                          await listOfDocumentSnap[index]
+                                              .reference
+                                              .update({'done':true});
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.delete),
+                                        onPressed: () async {
+                                          var todoId= listOfDocumentSnap[index].id;
+                                          await listOfDocumentSnap[index]
+                                              .reference
+                                              .delete();
+                                          _usersRef.doc(userId).update({'todo_list':FieldValue.arrayRemove([todoId])});
+                                        },
+                                      ),
+                                    ]
+                                  ],
                                 ),
                               ),
                             );
