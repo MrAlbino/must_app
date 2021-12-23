@@ -6,8 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 var uuid = const Uuid();
 final FirebaseAuth _auth = FirebaseAuth.instance;
-final User? user =_auth.currentUser;
-final userId = user!.uid;
+
 
 class InputPage extends StatefulWidget{
   const InputPage({Key? key}) : super(key: key);
@@ -19,7 +18,10 @@ class InputPage extends StatefulWidget{
 class _InputPageState extends State<InputPage>{
   double _destinationDay=1;
 
+
   final _fs=  FirebaseFirestore.instance;
+
+
   TextEditingController nameController = TextEditingController();
   TextEditingController explanationController = TextEditingController();
   TextEditingController destinationDayController = TextEditingController();
@@ -43,104 +45,111 @@ class _InputPageState extends State<InputPage>{
       ),
       body:
       Form(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              flex: 2,
-              child: MyContainer(child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children:  [
-                  const Text("Hedef Adı",style:TextStyle(
-                      color:Colors.black54,fontSize: 20,fontWeight: FontWeight.bold
-                  ),
-                  ),
-                  TextFormField(
-                    style: const TextStyle(
-                      color: Colors.black54,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    controller: nameController,
-                  ),
-                ],
-              )
-              ),
-            ),
-            Expanded(
-              flex: 2,
-              child: MyContainer(child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children:  [
-                  const Text("Hedef Açıklaması",style:TextStyle(
-                      color:Colors.black54,fontSize: 20,fontWeight: FontWeight.bold
-                  ),
-                  ),
-                  TextFormField(
-                    style: const TextStyle(
+        child: Container(
+          margin: const EdgeInsets.fromLTRB(0,0,0,12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                flex: 2,
+                child: MyContainer(child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children:  [
+                    const Text("Hedef Adı",style:TextStyle(
                         color:Colors.black54,fontSize: 20,fontWeight: FontWeight.bold
                     ),
-                    controller: explanationController,
-                  ),
-                ],
-              )
+                    ),
+                    TextFormField(
+                      style: const TextStyle(
+                        color: Colors.black54,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      controller: nameController,
+                    ),
+                  ],
+                )
+                ),
               ),
-            ),
-            Expanded(
-              flex: 2,
-              child: MyContainer(child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text("Hedef Gün",style:TextStyle(
-                      color:Colors.black54,fontSize: 20,fontWeight: FontWeight.bold
-                  ),
-                  ),
-                  Text(_destinationDay.round().toString(), style: const TextStyle(
-                      color:Colors.lightBlue,fontSize: 25,fontWeight: FontWeight.bold
-                  ),
-                  ),
-                  Slider(
-                    thumbColor: Colors.orange,
-                    max: 365,
-                    min:1,
-                    value: _destinationDay,
-                    onChanged: (double value){
-                      setState(() {
-                        _destinationDay = value;
-
-                      });
-                    },
-                  ),
-                ],
-              )
+              Expanded(
+                flex: 2,
+                child: MyContainer(child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children:  [
+                    const Text("Hedef Açıklaması",style:TextStyle(
+                        color:Colors.black54,fontSize: 20,fontWeight: FontWeight.bold
+                    ),
+                    ),
+                    TextFormField(
+                      style: const TextStyle(
+                          color:Colors.black54,fontSize: 20,fontWeight: FontWeight.bold
+                      ),
+                      controller: explanationController,
+                    ),
+                  ],
+                )
+                ),
               ),
-            ),
+              Expanded(
+                flex: 2,
+                child: MyContainer(child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Hedef Gün",style:TextStyle(
+                        color:Colors.black54,fontSize: 20,fontWeight: FontWeight.bold
+                    ),
+                    ),
+                    Text(_destinationDay.round().toString(), style: const TextStyle(
+                        color:Colors.lightBlue,fontSize: 25,fontWeight: FontWeight.bold
+                    ),
+                    ),
+                    Slider(
+                      thumbColor: Colors.orange,
+                      max: 365,
+                      min:1,
+                      value: _destinationDay,
+                      onChanged: (double value){
+                        setState(() {
+                          _destinationDay = value;
 
-            Expanded(
-              flex: 1,
-
-              child: TextButton(
-                onPressed: () async{
-                  Map<String, dynamic> toDoData = {
-                    'name': nameController.text,
-                    'explanation': explanationController.text,
-                    'deadline': DateTime.now().add(Duration(days:_destinationDay.toInt())),
-                  };
-                  var id=uuid.v4();
-                  await todosRef.doc((id)).set(toDoData);
-
-                  await usersRef.doc(userId).update({'todo_list':FieldValue.arrayUnion([id])});
-                  Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder:(context)=> SuccessPage()));
-                },
-                child: const Text('Oluştur'),
-                style: ButtonStyle(elevation: MaterialStateProperty.all(2), shape: MaterialStateProperty.all(const CircleBorder()), backgroundColor: MaterialStateProperty.all(Colors.orange), foregroundColor: MaterialStateProperty.all(Colors.white),
+                        });
+                      },
+                    ),
+                  ],
+                )
                 ),
               ),
 
-            ),
-          ],
+              Expanded(
+                flex: 1,
+
+                child: TextButton(
+                  onPressed: () async{
+                    User? user =_auth.currentUser;
+                    String userId = user!.uid;
+                    Map<String, dynamic> toDoData = {
+                      'name': nameController.text,
+                      'explanation': explanationController.text,
+                      'deadline': DateTime.now().add(Duration(days:_destinationDay.toInt())),
+                      'user' : userId
+                    };
+                    var id=uuid.v4();
+                    await todosRef.doc((id)).set(toDoData);
+
+                    await usersRef.doc(userId).update({'todo_list':FieldValue.arrayUnion([id])});
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder:(context)=> SuccessPage()));
+                  },
+                  child: const Text('Oluştur'),
+                  style: ButtonStyle(elevation: MaterialStateProperty.all(2), shape: MaterialStateProperty.all(const CircleBorder()),
+                    backgroundColor: MaterialStateProperty.all(Colors.orange), foregroundColor: MaterialStateProperty.all(Colors.white),
+                  ),
+                ),
+
+              ),
+            ],
+          ),
         ),
       ),
     );

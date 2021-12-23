@@ -1,6 +1,6 @@
 import 'package:must/service/auth.dart';
 import 'package:must/register.dart';
-import 'package:must/input_page.dart';
+import 'package:must/home.dart';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -117,7 +117,7 @@ class _LoginPageState extends State<LoginPage> {
                             return Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => InputPage()));
+                                    builder: (context) => HomePage()));
                           });
                         },
                         child: Container(
