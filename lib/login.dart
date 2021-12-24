@@ -1,7 +1,7 @@
 import 'package:must/service/auth.dart';
 import 'package:must/register.dart';
 import 'package:must/home.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 // ignore_for_file: prefer_const_constructors
@@ -14,8 +14,10 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
+  final GlobalKey<FormState> _key=GlobalKey<FormState>();
   AuthService _authService = AuthService();
+  bool isLoading=false;
+  String errorMessage='';
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +32,9 @@ class _LoginPageState extends State<LoginPage> {
           ),
           centerTitle: true,
         ),
-        body: Center(
+        body: Form(
+          key:_key,
+          child:Center(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10.0),
             child: Container(
@@ -51,8 +55,9 @@ class _LoginPageState extends State<LoginPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      TextField(
+                      TextFormField(
                           controller: _emailController,
+                          validator: validateEmail,
                           style: TextStyle(
                             color: Colors.white,
                           ),
@@ -79,12 +84,13 @@ class _LoginPageState extends State<LoginPage> {
                       SizedBox(
                         height: size.height * 0.02,
                       ),
-                      TextField(
+                      TextFormField(
                           style: TextStyle(
                             color: Colors.white,
                           ),
                           cursorColor: Colors.white,
                           controller: _passwordController,
+                          validator: validatePassword,
                           obscureText: true,
                           decoration: InputDecoration(
                             prefixIcon: Icon(
@@ -107,19 +113,50 @@ class _LoginPageState extends State<LoginPage> {
                                 )),
                           )),
                       SizedBox(
-                        height: size.height * 0.08,
+                        height: size.height * 0.04,
+                      ),
+                      Center(
+                        child: Text(errorMessage,style: TextStyle(color: Colors.red),),
+                      ),
+                      SizedBox(
+                        height: size.height * 0.02,
                       ),
                       InkWell(
-                        onTap: () {
-                          _authService
-                              .signIn(
-                              _emailController.text, _passwordController.text)
-                              .then((value) {
-                            return Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => HomePage()));
+                        onTap: () async{
+                          setState(() {
+                            isLoading=true;
+                            errorMessage='';
                           });
+                          if(_key.currentState!.validate()){
+                            try{
+                              await _authService
+                                  .signIn(
+                                  _emailController.text, _passwordController.text)
+                                  .then((value) {
+                                return Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => HomePage()));
+                              });
+                            }on FirebaseAuthException catch(error){
+                              if(error.code=='user-not-found'){
+                                errorMessage='No user found with this email.';
+                              }
+                              else if(error.code=='wrong-password'){
+                                errorMessage='Wrong email/password combination.';
+                              }
+                              else{
+                                errorMessage=error.message!;
+                              }
+                            }
+
+                          }
+                          if(mounted){
+                            setState(() {
+                              isLoading=false;
+                            });
+                          }
+
                         },
                         child: Container(
                           padding: EdgeInsets.symmetric(vertical: 5),
@@ -130,7 +167,13 @@ class _LoginPageState extends State<LoginPage> {
                           child: Padding(
                             padding: const EdgeInsets.all(5.0),
                             child: Center(
-                                child: Text(
+                                child:isLoading?
+                                SizedBox(
+                                  child: CircularProgressIndicator(),
+                                  height: 23.0,
+                                  width: 25.0,
+                                ):
+                                Text(
                                   "Giriş yap",
                                   style: TextStyle(
                                     color: Colors.white,
@@ -176,6 +219,24 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
           ),
-        ));
+        )));
   }
+}
+
+String? validateEmail(String? formEmail){
+  if(formEmail==null||formEmail.isEmpty){
+    return 'Email address is required.';
+  }
+  String pattern = r'\w+@\w+\.\w+';
+  RegExp regex = RegExp(pattern);
+  if (!regex.hasMatch(formEmail)){
+    return 'Invalid E-mail Address format.';
+  }
+  return null;
+}
+String? validatePassword(String? formPassword){
+  if(formPassword==null||formPassword.isEmpty){
+    return 'Password is required.';
+  }
+  return null;
 }

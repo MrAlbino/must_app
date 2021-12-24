@@ -1,6 +1,7 @@
 import 'package:must/service/auth.dart';
 import 'package:must/login.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 // ignore_for_file: prefer_const_constructors
 
 class RegisterPage extends StatefulWidget {
@@ -12,9 +13,10 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _passwordAgainController =
-  TextEditingController();
-
+  final TextEditingController _passwordAgainController = TextEditingController();
+  final GlobalKey<FormState> _key=GlobalKey<FormState>();
+  String errorMessage='';
+  bool isLoading=false;
   AuthService _authService = AuthService();
 
   @override
@@ -23,7 +25,9 @@ class _RegisterPageState extends State<RegisterPage> {
     return Scaffold(
         resizeToAvoidBottomInset: false,
 
-        body: Stack(
+        body: Form(
+        key:_key,
+        child:Stack(
           children: [
             Center(
               child: Padding(
@@ -46,8 +50,9 @@ class _RegisterPageState extends State<RegisterPage> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          TextField(
+                          TextFormField(
                               controller: _nameController,
+                              validator: validateUsername,
                               style: TextStyle(
                                 color: Colors.white,
                               ),
@@ -74,8 +79,9 @@ class _RegisterPageState extends State<RegisterPage> {
                           SizedBox(
                             height: size.height * 0.02,
                           ),
-                          TextField(
+                          TextFormField(
                               controller: _emailController,
+                              validator: validateEmail,
                               style: TextStyle(
                                 color: Colors.white,
                               ),
@@ -102,11 +108,12 @@ class _RegisterPageState extends State<RegisterPage> {
                           SizedBox(
                             height: size.height * 0.02,
                           ),
-                          TextField(
+                          TextFormField(
                               style: TextStyle(
                                 color: Colors.white,
                               ),
                               cursorColor: Colors.white,
+                              validator: validatePassword,
                               controller: _passwordController,
                               obscureText: true,
                               decoration: InputDecoration(
@@ -130,12 +137,17 @@ class _RegisterPageState extends State<RegisterPage> {
                           SizedBox(
                             height: size.height * 0.02,
                           ),
-                          TextField(
+                          TextFormField(
                               style: TextStyle(
                                 color: Colors.white,
                               ),
                               cursorColor: Colors.white,
                               controller: _passwordAgainController,
+                              validator: (val){
+                                if(val!=_passwordController.text){
+                                  return 'Passwords do not match.';
+                                }
+                              },
                               obscureText: true,
                               decoration: InputDecoration(
                                 prefixIcon: Icon(
@@ -155,21 +167,43 @@ class _RegisterPageState extends State<RegisterPage> {
                                       color: Colors.white,
                                     )),
                               )),
+
                           SizedBox(
-                            height: size.height * 0.08,
+                            height: size.height * 0.04,
+                          ),
+                          Center(
+                            child: Text(errorMessage,style: TextStyle(color: Colors.red),),
+                          ),
+                          SizedBox(
+                            height: size.height * 0.02,
                           ),
                           InkWell(
-                            onTap: () {
-                              _authService
-                                  .register(
-                                  _nameController.text,
-                                  _emailController.text,
-                                  _passwordController.text)
-                                  .then((value) {
-                                return Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => LoginPage()));
+                            onTap: () async{
+                              setState(() {
+                                isLoading=true;
+                                errorMessage='';
+
+                              });
+                              if(_key.currentState!.validate()){
+                                try{
+                                  await _authService
+                                      .register(
+                                      _nameController.text,
+                                      _emailController.text,
+                                      _passwordController.text)
+                                      .then((value) {
+                                    return Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => LoginPage()));
+                                  });
+                                }on FirebaseAuthException catch(error){
+                                  errorMessage=error.message!;
+                                }
+
+                              }
+                              setState(() {
+                                isLoading=false;
                               });
                             },
                             child: Container(
@@ -182,7 +216,13 @@ class _RegisterPageState extends State<RegisterPage> {
                               child: Padding(
                                 padding: const EdgeInsets.all(5.0),
                                 child: Center(
-                                    child: Text(
+                                    child: isLoading?
+                                    SizedBox(
+                                      child: CircularProgressIndicator(),
+                                      height: 23.0,
+                                      width: 25.0,
+                                    ):
+                                    Text(
                                       "Kaydet",
                                       style: TextStyle(
                                         color: Colors.white,
@@ -229,6 +269,30 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
             )
           ],
-        ));
+        )));
   }
+}
+
+String? validateUsername(String? formUsername){
+  if(formUsername==null||formUsername.isEmpty){
+    return 'Username is required';
+  }
+  return null;
+}
+String? validateEmail(String? formEmail){
+  if(formEmail==null||formEmail.isEmpty){
+    return 'Email address is required.';
+  }
+  String pattern = r'\w+@\w+\.\w+';
+  RegExp regex = RegExp(pattern);
+  if (!regex.hasMatch(formEmail)){
+    return 'Invalid E-mail Address format.';
+  }
+  return null;
+}
+String? validatePassword(String? formPassword){
+  if(formPassword==null||formPassword.isEmpty){
+    return 'Password is required.';
+  }
+  return null;
 }
