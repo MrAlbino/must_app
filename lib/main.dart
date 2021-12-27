@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:must/home.dart';
 import 'package:must/login.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -31,5 +30,3 @@ class MustApp extends StatelessWidget {
     );
   }
 }
-
-//guncelleme

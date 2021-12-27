@@ -33,7 +33,7 @@ class _RegisterPageState extends State<RegisterPage> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 child: Container(
-                  height: size.height * .7,
+                  height: size.height * .65,
                   width: size.width * .85,
                   decoration: BoxDecoration(
                       color: Colors.orange.withOpacity(.85),

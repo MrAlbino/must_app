@@ -4,6 +4,7 @@ import 'package:must/home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:must/reset.dart';
 // ignore_for_file: prefer_const_constructors
 
 class LoginPage extends StatefulWidget {
@@ -38,7 +39,7 @@ class _LoginPageState extends State<LoginPage> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10.0),
             child: Container(
-              height: size.height * .5,
+              height: size.height * .45,
               width: size.width * .85,
               decoration: BoxDecoration(
                   color: Colors.orange.withOpacity(.85),
@@ -113,7 +114,27 @@ class _LoginPageState extends State<LoginPage> {
                                 )),
                           )),
                       SizedBox(
-                        height: size.height * 0.04,
+                        height: size.height * 0.013,
+                      ),
+                      InkWell(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => ResetPasswordPage()));
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: const [
+                            Text(
+                              "Şifreni mi unuttun?",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        height: size.height * 0.01,
                       ),
                       Center(
                         child: Text(errorMessage,style: TextStyle(color: Colors.red),),
