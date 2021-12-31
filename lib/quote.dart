@@ -2,9 +2,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 import 'package:http/http.dart' as http;
-
+import './login.dart';
+import 'package:must/custom_dialog.dart';
+import 'package:must/service/auth.dart';
+// ignore_for_file: prefer_const_constructors
 
 class Quote {
   final String quote;
@@ -22,8 +24,8 @@ class QuotePage extends StatefulWidget{
 
 class _QuotePageState extends State<QuotePage>{
   String _quote='';
+  final AuthService _authService = AuthService();
 
-  final _random = Random();
 
 
   Future<void> getQuote() async {
@@ -35,14 +37,11 @@ class _QuotePageState extends State<QuotePage>{
       setState(() {
         _quote = myQuote.quote;
       });
-    } catch (e) {}
-  }
-
-  void _getNewQuote() {
-    setState(() {
-      _quote = '';
-    });
-    getQuote();
+    } catch (e) {
+      setState(() {
+        _quote="While there is hope, there is life.";
+      });
+    }
   }
 
   @override
@@ -54,6 +53,25 @@ class _QuotePageState extends State<QuotePage>{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.orange,
+        title: Text("MUST",
+          style: GoogleFonts.pacifico(fontSize: 25,color:Colors.white),
+
+        ),
+        centerTitle: true,
+        actions: <Widget>[
+          // First button - decrement
+          IconButton(
+              icon: const Icon(Icons.logout_outlined), // The "-" icon
+              onPressed:() {
+                _showDialog(context);
+              } // The `_decrementCounter` function
+          ),
+
+          // Second button - increment
+        ],
+      ),
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
@@ -67,11 +85,11 @@ class _QuotePageState extends State<QuotePage>{
             child: Column(
               children: <Widget>[
                 Stack(
-                  children: <Widget>[
+                  children: const <Widget>[
                     Align(
                       alignment: Alignment.bottomCenter,
                       child: Padding(
-                        padding: const EdgeInsets.only(top: 24.0),
+                        padding: EdgeInsets.only(top: 24.0),
 
                       ),
                     ),
@@ -93,6 +111,25 @@ class _QuotePageState extends State<QuotePage>{
           ),
         ),
       ),
+    );
+  }
+
+  _showDialog(BuildContext context){
+    VoidCallback continueCallBack = () => {
+      Navigator.of(context).pop(),
+      _authService.signOut(),
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder:(context)=> LoginPage()))
+    };
+    BlurryDialog  alert = BlurryDialog("Are you sure you want to exit?",continueCallBack);
+
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
     );
   }
 }

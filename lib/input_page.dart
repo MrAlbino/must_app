@@ -4,6 +4,9 @@ import 'package:uuid/uuid.dart';
 import './success.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import './login.dart';
+import 'package:must/custom_dialog.dart';
+import 'package:must/service/auth.dart';
 var uuid = const Uuid();
 final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -18,6 +21,7 @@ class InputPage extends StatefulWidget{
 class _InputPageState extends State<InputPage>{
   double _destinationDay=1;
 
+  AuthService _authService = AuthService();
 
   final _fs=  FirebaseFirestore.instance;
 
@@ -37,11 +41,22 @@ class _InputPageState extends State<InputPage>{
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Colors.orange,
-        title:  Text("MUST",
+        title: Text("MUST",
           style: GoogleFonts.pacifico(fontSize: 25,color:Colors.white),
 
         ),
         centerTitle: true,
+        actions: <Widget>[
+          // First button - decrement
+          IconButton(
+              icon: const Icon(Icons.logout_outlined), // The "-" icon
+              onPressed:() {
+                _showDialog(context);
+              } // The `_decrementCounter` function
+          ),
+
+          // Second button - increment
+        ],
       ),
       body:
       Form(
@@ -153,6 +168,24 @@ class _InputPageState extends State<InputPage>{
           ),
         ),
       ),
+    );
+  }
+  _showDialog(BuildContext context){
+    VoidCallback continueCallBack = () => {
+      Navigator.of(context).pop(),
+      _authService.signOut(),
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder:(context)=> LoginPage()))
+    };
+    BlurryDialog  alert = BlurryDialog("Are you sure you want to exit?",continueCallBack);
+
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
     );
   }
 }

@@ -1,10 +1,13 @@
 import 'package:must/service/auth.dart';
-import 'package:must/login.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 // ignore_for_file: prefer_const_constructors
 
 class RegisterPage extends StatefulWidget {
+  const RegisterPage({Key? key}) : super(key: key);
+
   @override
   _RegisterPageState createState() => _RegisterPageState();
 }
@@ -17,14 +20,21 @@ class _RegisterPageState extends State<RegisterPage> {
   final GlobalKey<FormState> _key=GlobalKey<FormState>();
   String errorMessage='';
   bool isLoading=false;
-  AuthService _authService = AuthService();
+  final AuthService _authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
     return Scaffold(
         resizeToAvoidBottomInset: false,
+        appBar: AppBar(
+          backgroundColor: Colors.orange,
+          title: Text("Kayıt Ol",
+            style: GoogleFonts.pacifico(fontSize: 25,color:Colors.white),
 
+          ),
+          centerTitle: true,
+        ),
         body: Form(
         key:_key,
         child:Stack(
@@ -33,7 +43,7 @@ class _RegisterPageState extends State<RegisterPage> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 child: Container(
-                  height: size.height * .65,
+                  height: size.height * .7,
                   width: size.width * .85,
                   decoration: BoxDecoration(
                       color: Colors.orange.withOpacity(.85),
@@ -192,10 +202,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                       _emailController.text,
                                       _passwordController.text)
                                       .then((value) {
-                                    return Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => LoginPage()));
+                                    return Navigator.pop(context);
                                   });
                                 }on FirebaseAuthException catch(error){
                                   errorMessage=error.message!;
@@ -239,35 +246,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               ),
             ),
-            Padding(
-              padding:
-              EdgeInsets.only(top: size.height * .06, left: size.width * .02),
-              child: Align(
-                alignment: Alignment.topLeft,
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: Icon(
-                        Icons.arrow_back_ios_outlined,
-                        color: Colors.orange.withOpacity(.75),
-                        size: 26,
-                      ),
-                    ),
-                    SizedBox(
-                      width: size.width * 0.3,
-                    ),
-                    Text(
-                      "Kayıt ol",
-                      style: TextStyle(
-                          fontSize: 20,
-                          color: Colors.orange.withOpacity(.85),
-                          fontWeight: FontWeight.bold),
-                    )
-                  ],
-                ),
-              ),
-            )
+
           ],
         )));
   }

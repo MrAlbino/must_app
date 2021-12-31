@@ -1,11 +1,12 @@
 import 'package:must/service/auth.dart';
-import 'package:must/login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 // ignore_for_file: prefer_const_constructors
 
 class ResetPasswordPage extends StatefulWidget {
+  const ResetPasswordPage({Key? key}) : super(key: key);
+
   @override
   _ResetPasswordState createState() => _ResetPasswordState();
 }
@@ -24,7 +25,7 @@ class _ResetPasswordState extends State<ResetPasswordPage> {
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
           backgroundColor: Colors.orange,
-          title: Text("MUST",
+          title: Text("Sıfırlama Maili Gönder",
             style: GoogleFonts.pacifico(fontSize: 25,color:Colors.white),
 
           ),
@@ -101,10 +102,7 @@ class _ResetPasswordState extends State<ResetPasswordPage> {
                                       .resetPassword(
                                       _emailController.text)
                                       .then((value) {
-                                    return Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => LoginPage()));
+                                    return Navigator.pop(context);
                                   });
                                 }on FirebaseAuthException catch(error){
                                   if(error.code=='user-not-found'){

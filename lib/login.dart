@@ -8,6 +8,8 @@ import 'package:must/reset.dart';
 // ignore_for_file: prefer_const_constructors
 
 class LoginPage extends StatefulWidget {
+  const LoginPage({Key? key}) : super(key: key);
+
   @override
   _LoginPageState createState() => _LoginPageState();
 }
@@ -16,7 +18,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _key=GlobalKey<FormState>();
-  AuthService _authService = AuthService();
+  final AuthService _authService = AuthService();
   bool isLoading=false;
   String errorMessage='';
 
@@ -39,7 +41,7 @@ class _LoginPageState extends State<LoginPage> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10.0),
             child: Container(
-              height: size.height * .45,
+              height: size.height * .55,
               width: size.width * .85,
               decoration: BoxDecoration(
                   color: Colors.orange.withOpacity(.85),
@@ -148,6 +150,7 @@ class _LoginPageState extends State<LoginPage> {
                             isLoading=true;
                             errorMessage='';
                           });
+
                           if(_key.currentState!.validate()){
                             try{
                               await _authService
