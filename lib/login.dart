@@ -120,6 +120,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       InkWell(
                         onTap: () {
+
                           Navigator.push(
                               context,
                               MaterialPageRoute(

@@ -7,6 +7,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import './login.dart';
 import 'package:must/custom_dialog.dart';
 import 'package:must/service/auth.dart';
+
+import 'api/notification_api.dart';
 var uuid = const Uuid();
 final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -152,7 +154,18 @@ class _InputPageState extends State<InputPage>{
                     var id=uuid.v4();
                     await todosRef.doc((id)).set(toDoData);
 
+
+
                     await usersRef.doc(userId).update({'todo_list':FieldValue.arrayUnion([id])});
+
+                    //set notification
+                    NotificationApi.showScheduledNotification(
+                      title: nameController.text,
+                      body: explanationController.text,
+                      payload: '',
+                      scheduledDate: DateTime.now().add(Duration(days:_destinationDay.toInt())),
+                    );
+
                     Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(builder:(context)=> SuccessPage()));
@@ -171,14 +184,14 @@ class _InputPageState extends State<InputPage>{
     );
   }
   _showDialog(BuildContext context){
-    VoidCallback continueCallBack = () => {
-      Navigator.of(context).pop(),
-      _authService.signOut(),
+
+    BlurryDialog  alert = BlurryDialog("Are you sure you want to exit?",(){
+      Navigator.of(context).pop();
+      _authService.signOut();
       Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder:(context)=> LoginPage()))
-    };
-    BlurryDialog  alert = BlurryDialog("Are you sure you want to exit?",continueCallBack);
+          MaterialPageRoute(builder:(context)=> LoginPage()));
+    });
 
 
     showDialog(

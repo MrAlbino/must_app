@@ -4,13 +4,14 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import './login.dart';
 import 'package:must/custom_dialog.dart';
-import 'package:must/service/auth.dart';
+import 'package:intl/intl.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
 
 
 class MyTodosPage extends StatefulWidget{
-  const MyTodosPage({Key? key}) : super(key: key);
+  final String? payload;
+  const MyTodosPage({Key? key,required this.payload}) : super(key: key);
 
   @override
   _MyTodosPageState createState()=> _MyTodosPageState();
@@ -88,7 +89,7 @@ class _MyTodosPageState extends State<MyTodosPage>{
                                     '${listOfDocumentSnap[index]['name']}',
                                     style: const TextStyle(fontSize: 24)),
                                 subtitle: Text(
-                                    '${DateTime.parse((listOfDocumentSnap[index]['deadline']).toDate().toString())}',
+                                    'Son Tarih: '+DateFormat('yyyy-MM-dd kk:mm').format(DateTime.parse((listOfDocumentSnap[index]['deadline']).toDate().toString())),
                                     style: const TextStyle(fontSize: 16)),
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -146,14 +147,14 @@ class _MyTodosPageState extends State<MyTodosPage>{
     );
   }
   _showDialog(BuildContext context){
-    VoidCallback continueCallBack = () => {
-      Navigator.of(context).pop(),
-      _auth.signOut(),
+
+    BlurryDialog  alert = BlurryDialog("Are you sure you want to exit?",(){
+      Navigator.of(context).pop();
+      _auth.signOut();
       Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder:(context)=> LoginPage()))
-    };
-    BlurryDialog  alert = BlurryDialog("Are you sure you want to exit?",continueCallBack);
+          MaterialPageRoute(builder:(context)=> LoginPage()));
+    });
 
     showDialog(
       context: context,
@@ -163,3 +164,4 @@ class _MyTodosPageState extends State<MyTodosPage>{
     );
   }
 }
+

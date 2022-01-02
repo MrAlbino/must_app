@@ -115,14 +115,14 @@ class _QuotePageState extends State<QuotePage>{
   }
 
   _showDialog(BuildContext context){
-    VoidCallback continueCallBack = () => {
-      Navigator.of(context).pop(),
-      _authService.signOut(),
+
+    BlurryDialog  alert = BlurryDialog("Are you sure you want to exit?",(){
+      Navigator.of(context).pop();
+      _authService.signOut();
       Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder:(context)=> LoginPage()))
-    };
-    BlurryDialog  alert = BlurryDialog("Are you sure you want to exit?",continueCallBack);
+          MaterialPageRoute(builder:(context)=> LoginPage()));
+    });
 
 
     showDialog(

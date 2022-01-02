@@ -16,7 +16,7 @@ class HomePage extends StatefulWidget{
 class _HomePageState extends State<HomePage>{
 
   final GlobalKey navKey = GlobalKey();
-  var pagesAll = [const QuotePage(), const MyTodosPage(), const InputPage()];
+  var pagesAll = [const QuotePage(), const MyTodosPage(payload: '',), const InputPage()];
 
   var myIndex =0;
 

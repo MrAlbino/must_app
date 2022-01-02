@@ -3,8 +3,8 @@ import 'package:must/login.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 
-
-
+import 'api/notification_api.dart';
+import 'mytodos.dart';
 
 
 void main() async{
@@ -13,10 +13,24 @@ void main() async{
   runApp(const MustApp());
 
 }
-
-
-class MustApp extends StatelessWidget {
+class MustApp extends StatefulWidget {
   const MustApp({Key? key}) : super(key: key);
+
+  @override
+  _MustAppState createState() => _MustAppState();
+}
+class _MustAppState extends State<MustApp> {
+  @override
+  void initState(){
+    super.initState();
+    NotificationApi.init(initScheduled: true);
+    listenNotifications();
+  }
+  void listenNotifications()=>
+      NotificationApi.onNotifications.stream.listen(onClickedNotification);
+
+  void onClickedNotification(String? payload)=>
+      Navigator.of(context).push(MaterialPageRoute(builder: (context)=>MyTodosPage(payload:payload)));
 
   @override
   Widget build(BuildContext context) {
@@ -29,4 +43,5 @@ class MustApp extends StatelessWidget {
           home: LoginPage(),
     );
   }
+
 }
