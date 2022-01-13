@@ -6,6 +6,8 @@ import './login.dart';
 import 'package:must/custom_dialog.dart';
 import 'package:intl/intl.dart';
 
+import 'api/notification_api.dart';
+
 final FirebaseAuth _auth = FirebaseAuth.instance;
 
 
@@ -112,6 +114,7 @@ class _MyTodosPageState extends State<MyTodosPage>{
                                           await listOfDocumentSnap[index]
                                               .reference
                                               .update({'done':true});
+                                          NotificationApi.cancel(listOfDocumentSnap[index]['notification_id'].hashCode);
                                         },
                                       ),
                                       IconButton(
@@ -122,6 +125,7 @@ class _MyTodosPageState extends State<MyTodosPage>{
                                               .reference
                                               .delete();
                                           _usersRef.doc(userId).update({'todo_list':FieldValue.arrayRemove([todoId])});
+                                          NotificationApi.cancel(listOfDocumentSnap[index]['notification_id'].hashCode);
                                         },
                                       ),
                                     ]

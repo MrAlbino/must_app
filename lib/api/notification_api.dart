@@ -23,6 +23,13 @@ class NotificationApi{
     final android=AndroidInitializationSettings('@mipmap/ic_launcher');
     final iOS=IOSInitializationSettings();
     final settings=InitializationSettings(android: android,iOS: iOS);
+
+    //When the app is closed
+    final details= await _notifications.getNotificationAppLaunchDetails();
+    if(details!=null && details.didNotificationLaunchApp){
+      onNotifications.add(details.payload);
+    }
+
     await _notifications.initialize(
       settings,
       onSelectNotification: (payload) async{
@@ -69,4 +76,8 @@ class NotificationApi{
       androidAllowWhileIdle:true,
       uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
     );
+
+  static void cancel(int id) => _notifications.cancel(id);
+
+  static void cancelAll() => _notifications.cancelAll();
 }

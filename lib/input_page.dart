@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
@@ -11,7 +12,8 @@ import 'package:must/service/auth.dart';
 import 'api/notification_api.dart';
 var uuid = const Uuid();
 final FirebaseAuth _auth = FirebaseAuth.instance;
-
+final Random random= Random();
+const _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
 
 class InputPage extends StatefulWidget{
   const InputPage({Key? key}) : super(key: key);
@@ -144,22 +146,25 @@ class _InputPageState extends State<InputPage>{
                   onPressed: () async{
                     User? user =_auth.currentUser;
                     String userId = user!.uid;
+                    var notificationId= getRandomString(28);
+
                     Map<String, dynamic> toDoData = {
                       'name': nameController.text,
                       'explanation': explanationController.text,
                       'deadline': DateTime.now().add(Duration(days:_destinationDay.toInt())),
                       'user' : userId,
-                      'done':false
+                      'done':false,
+                      'notification_id':notificationId
                     };
                     var id=uuid.v4();
                     await todosRef.doc((id)).set(toDoData);
-
 
 
                     await usersRef.doc(userId).update({'todo_list':FieldValue.arrayUnion([id])});
 
                     //set notification
                     NotificationApi.showScheduledNotification(
+                      id: notificationId.hashCode,
                       title: nameController.text,
                       body: explanationController.text,
                       payload: '',
@@ -220,3 +225,5 @@ class MyContainer extends StatelessWidget {
     );
   }
 }
+String getRandomString(int length) => String.fromCharCodes(Iterable.generate(
+    length, (_) => _chars.codeUnitAt(random.nextInt(_chars.length))));
